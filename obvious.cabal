@@ -33,4 +33,6 @@ executable obvious
                      , time ==1.4
                      , wai-middleware-static ==0.3.2
                      , wai-extra
+  Exposed-modules:   Obvious.Model, Obvious.Views, Obvious.Util
+                     
 --  Data-Files:          src/blogpost.html

@@ -33,6 +33,9 @@ import Data.Int
 readPosts :: IO [Post]
 readPosts = map entityVal <$> (runDb $ selectList [PostDraft ==. False] [LimitTo 10])
 
+getKey :: Int64 -> Key SqlPersist Post
+getKey postId = (Key (PersistInt64 postId))
+
 applyMaybe :: Maybe a -> (a -> Maybe b) -> Maybe b  
 applyMaybe Nothing f  = Nothing  
 applyMaybe (Just x) f = f x  
@@ -63,9 +66,8 @@ main = do
 
     S.get "/show/:post" $ do
       _postId <- S.param "post"
-      D.trace (show _postId) (return ())
       let postId = read _postId :: Int64
-      post <- liftIO $ getPost (Key (PersistInt64 postId))
+      post <- liftIO $ getPost (getKey postId)
       case post of
         (Just _post) -> blaze $ renderPost _post
         Nothing -> S.status HTTP.status404
