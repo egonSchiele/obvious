@@ -13,7 +13,8 @@ build-type:          Simple
 cabal-version:       >=1.8
 
 executable obvious
-  main-is:             src/Main.hs
+  Hs-source-dirs: src
+  main-is:             Main.hs
   -- other-modules:       
   build-depends:       base ==4.5.*
                      , wai ==1.3.*
