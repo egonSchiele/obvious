@@ -1,27 +1,32 @@
-# Haskell Buildpack Demo
+# Obvious
+Obvious is a Svbtle clone written in Haskell.
 
-This demo is live on Heroku:
+# Advantages
+- Speed
+- Easy 3-step deployment to Heroku
+- Writing Haskell!
 
-http://haskell-buildpack-demo.herokuapp.com/
+# Deploy
+1. `gem install heroku`
+2. `make setup`
+3. `git push heroku master`
 
-It uses the Haskell Buildpack:
+# Technology
+- Server: Warp
+- Framework: Scotty
+- Templating: blaze-html
+- Database: sqlite on development, postgres on production
+- heroku-buildpack-haskell
 
-https://github.com/pufuwozu/heroku-buildpack-haskell
+# Why Warp?
+[It's fast](http://www.yesodweb.com/blog/2011/03/preliminary-warp-cross-language-benchmarks).
 
-## Pushing to Heroku
+<insert benchmarks with ab here>
 
-Clone this repository:
+# Why Scotty?
+Low learning curve, easy to modify
+Easy install -- I've had issues with Yesod ([this bug in particular](https://github.com/yesodweb/yesod/issues/373)). Yesod also installs a lot of packages and might not finish in Heroku's 15 minute
+window.
 
-    git clone https://github.com/pufuwozu/haskell-buildpack-demo.git
-
-Create a new Heroku application:
-
-    heroku create --stack=cedar --buildpack https://github.com/pufuwozu/heroku-buildpack-haskell.git
-
-Push!
-
-    git push heroku master
-
-*Note*: the push will take some time to install dependencies and might
-not show any output for quite a while. It will also show a lot of
-warnings.
+# Why Svbtle? Why not a static site generator?
+Familiarity. The goal of this project is to lower the bar for using Haskell for a personal site.
