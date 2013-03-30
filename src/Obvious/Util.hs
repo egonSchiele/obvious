@@ -3,7 +3,6 @@
 
 module Obvious.Util where
 import Database.Persist
-import Data.Text 
 
 -- uncomment this on dev
 -- #define SQLite
@@ -26,7 +25,7 @@ import           Web.Heroku                  (dbConnParams)
 runSql :: SqlPersist IO a -> IO a
 runSql query = do
     params <- dbConnParams
-    let connStr = foldr (\(k,v) t -> t <> (encodeUtf8 $ k <> "=" <> v <> " "))
+    let connStr = Prelude.foldr (\(k,v) t -> t <> (encodeUtf8 $ k <> "=" <> v <> " "))
                   "" params
     withPostgresqlConn connStr $ runSqlConn query
 
