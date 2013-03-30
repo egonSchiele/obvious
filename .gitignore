@@ -1,2 +1,5 @@
 dist
 .virthualenv
+*.hi
+*.o
+src/Main

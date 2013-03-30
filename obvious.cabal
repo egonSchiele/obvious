@@ -21,5 +21,13 @@ executable obvious
                      , http-types ==0.7.*
                      , scotty
                      , text
+                     , monad-logger ==0.2.4
                      , bytestring
+                     , blaze-html
+                     , persistent ==1.0.2.2
+                     , persistent-template ==1.0.0.2
+                     , persistent-sqlite ==1.0.1
+                     , resourcet ==0.4.*
+                     , transformers ==0.3.0.0
+                     , time ==1.4
 --  Data-Files:          src/blogpost.html
