@@ -52,21 +52,20 @@ main = do
 
   S.scotty port $ do
     S.middleware logStdoutDev
-    S.middleware $ staticPolicy (addBase "/static")    
+    S.middleware $ staticPolicy (addBase "/static")
     S.get "/" $ do
       posts <- liftIO readPosts
       blaze $ renderPosts posts
 
     S.get "/preview/:post" $ do
       postId <- liftM read $ S.param "post"
-      post <- liftIO $ getPost postId
+      post <- liftIO $ getPost (getKey postId)
       case post of
         (Just _post) -> blaze $ renderPost _post
         Nothing -> S.status HTTP.status404
 
     S.get "/show/:post" $ do
-      _postId <- S.param "post"
-      let postId = read _postId :: Int64
+      postId <- liftM read $ S.param "post"
       post <- liftIO $ getPost (getKey postId)
       case post of
         (Just _post) -> blaze $ renderPost _post
@@ -85,11 +84,20 @@ main = do
       liftIO $ runDb $ insert $ Post title (T.pack content) draft aside url Nothing now
       S.html "done!"
 
+    S.post "/update" $ do
+      postId <- liftM read $ S.param "id"      
+      title <- liftM TL.unpack $ S.param "title"
+      content <- liftM TL.unpack $ S.param "content"
+      draft <- isJust <$> lookup "draft" <$> S.params
+      aside <- isJust <$> lookup "aside" <$> S.params
+      url <- liftM TL.unpack $ S.param "url"
+      liftIO $ runDb $ update (getKey postId) [PostTitle =. title, PostContent =. (T.pack content), PostDraft =. draft, PostAside =. aside, PostUrl =. url]
+
     S.get "/edit/:post" $ do
       postId <- liftM read $ S.param "post"
-      post <- liftIO $ getPost postId
+      post <- liftIO $ getPost (getKey postId)
       case post of
-        (Just _post) -> blaze $ editPost _post
+        (Just _post) -> blaze $ editPost _post (show postId)
         Nothing -> S.status HTTP.status404
 
     S.post "/destroy" $ do

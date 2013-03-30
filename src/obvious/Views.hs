@@ -30,7 +30,25 @@ renderPost post = do
 renderPosts posts = do
   mconcat $ for_ posts $ renderPost
 
-editPost post = renderPost post
+editPost post postId = do
+  h1 "Edit Post"
+  H.form ! method "post" ! action "/update" $ do
+    input ! value (toValue postId) ! type_ "hidden" ! name "id"
+    H.label "Title" ! for "title"
+    input ! value (toValue . postTitle $ post) ! type_ "text" ! A.id "title" ! name "title"
+    H.label "Content" ! for "content"
+    H.textarea (toHtml . postContent $ post) ! A.id "content" ! name "content"
+    H.label "Draft?" ! for "draft"
+    if (postDraft post)
+      then input ! type_ "checkbox" ! A.id "draft" ! name "draft" ! checked "checked"
+      else input ! type_ "checkbox" ! A.id "draft" ! name "draft"
+    H.label "Aside?" ! for "aside"
+    if (postAside post)
+      then input ! type_ "checkbox" ! A.id "aside" ! name "aside" ! checked "checked"
+      else input ! type_ "checkbox" ! A.id "aside" ! name "aside"    
+    H.label "Url" ! for "url"
+    input ! value (toValue . postUrl $ post) ! type_ "text" ! A.id "url" ! name "url"
+    input ! type_ "submit"    
 
 newPost = do
   h1 "New Post"
