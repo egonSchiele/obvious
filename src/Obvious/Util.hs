@@ -3,6 +3,7 @@
 
 module Obvious.Util where
 import Database.Persist
+import Database.Persist.GenericSql
 
 -- uncomment this on dev
 -- #define SQLite
