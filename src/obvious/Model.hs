@@ -23,8 +23,8 @@ Post
     aside Bool default=False
     url String
     parentId Int Maybe
-    deriving Show
     createdAt UTCTime
+    deriving Show
 Session
     sessionId String
     data Text

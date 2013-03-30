@@ -34,5 +34,15 @@ editPost post = renderPost post
 
 newPost = do
   h1 "New Post"
-  H.label "Title" ! for "title"
-  input ! type_ "text"
+  H.form ! method "post" ! action "/create" $ do
+    H.label "Title" ! for "title"
+    input ! type_ "text" ! A.id "title" ! name "title"
+    H.label "Content" ! for "content"
+    H.textarea "Content here" ! A.id "content" ! name "content"
+    H.label "Draft?" ! for "draft"
+    input ! type_ "checkbox" ! A.id "draft" ! name "draft"
+    H.label "Aside?" ! for "aside"
+    input ! type_ "checkbox" ! A.id "aside" ! name "aside"
+    H.label "Url" ! for "url"
+    input ! type_ "text" ! A.id "url" ! name "url"
+    input ! type_ "submit"
