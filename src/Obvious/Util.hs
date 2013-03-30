@@ -23,8 +23,8 @@ import           Database.Persist.Postgresql (withPostgresqlConn)
 import           Database.Persist.Store      (applyEnv, loadConfig)
 import           Web.Heroku                  (dbConnParams)
 
-runSql :: SqlPersist IO a -> IO a
-runSql query = do
+runDb :: SqlPersist IO a -> IO a
+runDb query = do
     params <- dbConnParams
     let connStr = Prelude.foldr (\(k,v) t -> t <> (encodeUtf8 $ k <> "=" <> v <> " "))
                   "" params
