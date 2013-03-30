@@ -15,7 +15,7 @@ cabal-version:       >=1.8
 executable obvious
   Hs-source-dirs: src
   main-is:             Main.hs
-  Other-Modules: Obvious.Views, Obvious.Util, Obvious.Model  
+  Other-Modules: Obvious
   -- other-modules:       
   build-depends:       base ==4.5.*
                      , wai ==1.3.*
