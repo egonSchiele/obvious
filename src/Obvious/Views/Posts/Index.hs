@@ -7,9 +7,11 @@ import qualified Text.Blaze.Html5.Attributes as A
 import Obvious.Views.Shared
 import qualified Obvious.Views.Posts.Post
 import Obvious.Model
+import Data.Monoid (mconcat)
 
-for_ = flip map
+for_ = flip Prelude.map
 
-render :: Num a => [Post] -> [a] -> Html
+render :: Show a => Num a => [Post] -> [a] -> Html
 render posts postIds = do
-    for_ (zip posts postIds) $ \post, postId -> Obvious.Views.Posts.Post.render post postId False
+    mconcat $ for_ (zip posts postIds) $ \(post, postId) -> do
+      Obvious.Views.Posts.Post.render post postId False

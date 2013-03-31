@@ -8,5 +8,5 @@ import Obvious.Views.Shared
 import qualified Obvious.Views.Posts.Form
 import Obvious.Model
 
-render :: Num a => Post -> a -> Html
+render :: Show a => Num a => Post -> a -> Html
 render post postId = Obvious.Views.Posts.Form.render (Just post) (Just postId) "/update"

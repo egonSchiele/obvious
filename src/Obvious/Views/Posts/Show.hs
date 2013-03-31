@@ -8,7 +8,7 @@ import Obvious.Views.Shared
 import qualified Obvious.Views.Posts.Post
 import Obvious.Model
 
-for_ = flip map
+for_ = flip Prelude.map
 
-render :: Num a => Post -> a -> Html
+render :: Show a => Num a => Post -> a -> Html
 render post postId = Obvious.Views.Posts.Post.render post postId False

@@ -20,7 +20,6 @@ import qualified Data.ByteString as BS
 import System.Environment
 import Obvious.Model
 import Obvious.Util
-import Obvious.Views
 import qualified Network.HTTP.Types as HTTP
 import Data.Time (getCurrentTime)
 import Data.Monoid (mconcat)
@@ -30,8 +29,20 @@ import qualified Debug.Trace as D
 import Database.Persist.Store
 import Data.Int
 
-readPosts :: IO [Post]
-readPosts = map entityVal <$> (runDb $ selectList [PostDraft ==. False] [LimitTo 10])
+-- views
+import qualified Obvious.Views.Posts.Index
+import qualified Obvious.Views.Posts.New
+import qualified Obvious.Views.Posts.Show
+import qualified Obvious.Views.Posts.Preview
+import qualified Obvious.Views.Posts.Edit
+import qualified Obvious.Views.Posts.Delete
+import qualified Obvious.Views.Posts.Admin
+
+import Obvious.Views.Layouts.Admin
+import Obvious.Views.Layouts.Application
+
+--readPosts :: IO [Post]
+readPosts = (runDb $ selectList [PostDraft ==. False] [LimitTo 10])
 
 getKey :: Int64 -> Key SqlPersist Post
 getKey postId = (Key (PersistInt64 postId))
@@ -54,25 +65,30 @@ main = do
     S.middleware logStdoutDev
     S.middleware $ staticPolicy (addBase "/static")
     S.get "/" $ do
-      posts <- liftIO readPosts
-      blaze $ renderPosts posts
+      posts_ <- liftIO readPosts
+      notice <- lookup "notice" <$> S.params      
+      let posts = map entityVal posts_
+      -- TODO fix
+      -- let postIds = map (unKey . entityKey) posts_
+      let postIds = [1..]
+      application (Obvious.Views.Posts.Index.render posts postIds) notice
 
     S.get "/preview/:post" $ do
       postId <- liftM read $ S.param "post"
       post <- liftIO $ getPost (getKey postId)
       case post of
-        (Just _post) -> blaze $ renderPost _post
+        (Just _post) -> application (Obvious.Views.Posts.Preview.render _post postId) Nothing
         Nothing -> S.status HTTP.status404
 
     S.get "/show/:post" $ do
       postId <- liftM read $ S.param "post"
       post <- liftIO $ getPost (getKey postId)
       case post of
-        (Just _post) -> blaze $ renderPost _post
+        (Just _post) -> application (Obvious.Views.Posts.Show.render _post postId) Nothing
         Nothing -> S.status HTTP.status404
 
     S.get "/new" $ do
-      blaze newPost
+      application (Obvious.Views.Posts.New.render) Nothing
 
     S.post "/create" $ do
       now <- liftIO getCurrentTime
@@ -82,7 +98,7 @@ main = do
       aside <- isJust <$> lookup "aside" <$> S.params
       url <- liftM TL.unpack $ S.param "url"
       liftIO $ runDb $ insert $ Post title (T.pack content) draft aside url Nothing now
-      S.html "created!"
+      S.redirect "/notice='post created!'"
 
     S.post "/update" $ do
       postId <- liftM read $ S.param "id"
@@ -92,27 +108,32 @@ main = do
       aside <- isJust <$> lookup "aside" <$> S.params
       url <- liftM TL.unpack $ S.param "url"
       liftIO $ runDb $ update (getKey postId) [PostTitle =. title, PostContent =. (T.pack content), PostDraft =. draft, PostAside =. aside, PostUrl =. url]
-      S.html "updated!"
+      S.redirect "/notice='post updated!'"
 
     S.get "/edit/:post" $ do
       postId <- liftM read $ S.param "post"
       post <- liftIO $ getPost (getKey postId)
       case post of
-        (Just _post) -> blaze $ editPost _post (show postId)
+        (Just _post) -> application (Obvious.Views.Posts.Edit.render _post postId) Nothing
         Nothing -> S.status HTTP.status404
 
     S.get "/delete/:post" $ do
       postId <- liftM read $ S.param "post"
       post <- liftIO $ getPost (getKey postId)
       case post of
-        (Just _post) -> blaze $ deletePost _post (show postId)
+        (Just _post) -> application (Obvious.Views.Posts.Delete.render _post postId) Nothing
         Nothing -> S.status HTTP.status404      
       
 
     S.post "/destroy" $ do
       postId <- liftM read $ S.param "id"
       liftIO $ runDb $ delete (getKey postId)
-      S.html "deleted!"
+      S.redirect "/notice='post deleted!'"      
 
     S.get "/admin" $ do
-      S.html "TODO"
+      posts_ <- liftIO readPosts
+      let posts = map entityVal posts_
+      -- TODO fix
+      -- let postIds = map (unKey . entityKey) posts_      
+      let postIds = [1..]
+      admin (Obvious.Views.Posts.Admin.render posts postIds) Nothing
