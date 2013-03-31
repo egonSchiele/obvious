@@ -30,6 +30,13 @@ renderPost post = do
 renderPosts posts = do
   mconcat $ for_ posts $ renderPost
 
+deletePost post postId = do
+    H.form ! method "post" ! action "/destroy" $ do
+      input ! value (toValue postId) ! type_ "hidden" ! name "id"
+      p "Are you sure you want to delete this post?"
+      input ! type_ "submit"
+      renderPost post
+
 editPost post postId = do
   h1 "Edit Post"
   H.form ! method "post" ! action "/update" $ do

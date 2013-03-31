@@ -82,16 +82,17 @@ main = do
       aside <- isJust <$> lookup "aside" <$> S.params
       url <- liftM TL.unpack $ S.param "url"
       liftIO $ runDb $ insert $ Post title (T.pack content) draft aside url Nothing now
-      S.html "done!"
+      S.html "created!"
 
     S.post "/update" $ do
-      postId <- liftM read $ S.param "id"      
+      postId <- liftM read $ S.param "id"
       title <- liftM TL.unpack $ S.param "title"
       content <- liftM TL.unpack $ S.param "content"
       draft <- isJust <$> lookup "draft" <$> S.params
       aside <- isJust <$> lookup "aside" <$> S.params
       url <- liftM TL.unpack $ S.param "url"
       liftIO $ runDb $ update (getKey postId) [PostTitle =. title, PostContent =. (T.pack content), PostDraft =. draft, PostAside =. aside, PostUrl =. url]
+      S.html "updated!"
 
     S.get "/edit/:post" $ do
       postId <- liftM read $ S.param "post"
@@ -100,10 +101,18 @@ main = do
         (Just _post) -> blaze $ editPost _post (show postId)
         Nothing -> S.status HTTP.status404
 
+    S.get "/delete/:post" $ do
+      postId <- liftM read $ S.param "post"
+      post <- liftIO $ getPost (getKey postId)
+      case post of
+        (Just _post) -> blaze $ deletePost _post (show postId)
+        Nothing -> S.status HTTP.status404      
+      
+
     S.post "/destroy" $ do
-      S.html "TODO"
+      postId <- liftM read $ S.param "id"
+      liftIO $ runDb $ delete (getKey postId)
+      S.html "deleted!"
 
     S.get "/admin" $ do
       S.html "TODO"
-
-
