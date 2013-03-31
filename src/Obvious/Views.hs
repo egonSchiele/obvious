@@ -10,25 +10,9 @@ import qualified Data.Text.Lazy as TL
 import qualified Web.Scotty as S
 import Obvious.Model
 import Data.Monoid (mconcat)
-
-blaze = S.html . renderHtml
+import Obvious.Views.Layouts.Application
 
 for_ = flip Prelude.map
-
-wrap content = blaze $ do
-  html $ do
-    H.head $ do
-      H.title "My Blog"
-    body $ do
-      H.div ! A.id "content" $ do
-        content
-
-renderPost post = do
-  h1 . toHtml $ postTitle post
-  p . toHtml $ postContent post
-
-renderPosts posts = do
-  mconcat $ for_ posts $ renderPost
 
 deletePost post postId = do
     H.form ! method "post" ! action "/destroy" $ do

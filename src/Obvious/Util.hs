@@ -24,6 +24,24 @@ env = case (envVar) of
         Right _ -> DEVELOPMENT
   where envVar = unsafePerformIO $ try (getEnv "ENV") :: Either (IOError) (String)
 
+ifJust :: Maybe String -> (String -> Html) -> Html
+ifJust (Just x) y = y x
+ifJust Nothing _ = toHtml ""
+
+iff :: Bool -> Html -> Html
+iff True f = f
+iff False _ = toHtml ""
+
+-- TODO s/ /_/g
+postSlug post = postTitle post
+
+-- TODO implement markdown -> blaze
+fromMarkdown :: String -> Html
+fromMarkdown content = p content
+
+-- TODO implement sessions and login
+admin = True
+
 runDb :: SqlPersist IO a -> IO a
 runDb query = if env == DEVELOPMENT
   then
