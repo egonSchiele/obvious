@@ -4,4 +4,9 @@
 - make it easy to migrate from wordpress? See:
     obtvse/lib/tasks/migrate_wordpress.rake
 
+- comments
+
 - prettier 404 and 500 error pages
+
+- needed: a sass parser for haskell so I can write an asset aggregator in pure haskell
+- rss

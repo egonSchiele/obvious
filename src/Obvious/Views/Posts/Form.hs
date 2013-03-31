@@ -11,24 +11,32 @@ import Obvious.Util
 
 for_ = flip Prelude.map
 
-split :: Num a => Maybe Post -> Maybe a -> Html
+split :: Show a => Num a => Maybe Post -> Maybe a -> Html
 split post postId = do
     H.div ! A.id "split" $ do
       H.div ! A.id "post-editor" ! class_ "split-section" $ do
+        case postId of
+          (Just postId_) -> input ! type_ "hidden" ! A.id "id" ! name "id" ! value (toValue . show $ postId_)
+          Nothing -> ""
         H.div ! A.id "text-title" ! class_ "expandingArea" $ do
           pre $ do
             H.span ""
             br 
-          textarea textareaContent ! rows "1" ! placeholder "Title here"
+          textarea textareaTitle ! rows "1" ! placeholder "Title here" ! A.id "title" ! name "title"
         fieldset ! class_ "markdown" $ do
-          H.div "" ! A.id "text-content" ! class_ "expandingArea"
-          pre $ do
-            H.span ""
-            br 
+          H.div ! A.id "text-content" ! class_ "expandingArea" $ do
+            pre $ do
+              H.span ""
+              br 
+            textarea textareaContent ! rows "1" ! placeholder "Write post here" ! A.id "content" ! name "content"
       H.div "" ! A.id "post-preview" ! class_ "split-section"
   where textareaContent = case post of
+                            (Just post_) -> toHtml . postContent $ post_
+                            Nothing      -> ""
+
+        textareaTitle = case post of
                             (Just post_) -> toHtml . postTitle $ post_
-                            Nothing      -> "Put your content here"
+                            Nothing      -> ""
 
 render :: Show a => Num a => Maybe Post -> Maybe a -> String -> Html
 render post postId postAction = do
@@ -56,5 +64,5 @@ publishBarHover post postId = do
             H.label "Draft" ! for "draft"
             input ! type_ "checkbox" ! name "draft" ! A.id "draft"
             -- TODO preview is an arbitrary attribute, how to add?
-            -- input ! type_ "submit" ! value "Preview" ! A.id "preview-button" ! preview "true" ! target "_blank"
+            input ! type_ "submit" ! value "Preview" ! A.id "preview-button" ! (customAttribute "preview" "true") ! target "_blank"
             input ! type_ "submit" ! value "Save" ! A.id "save-button"

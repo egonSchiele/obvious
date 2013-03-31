@@ -63,7 +63,7 @@ main = do
 
   S.scotty port $ do
     S.middleware logStdoutDev
-    S.middleware $ staticPolicy (addBase "/static")
+    S.middleware $ staticPolicy (noDots >-> addBase "static")
     S.get "/" $ do
       posts_ <- liftIO readPosts
       notice <- lookup "notice" <$> S.params      
@@ -88,7 +88,7 @@ main = do
         Nothing -> S.status HTTP.status404
 
     S.get "/new" $ do
-      application (Obvious.Views.Posts.New.render) Nothing
+      admin (Obvious.Views.Posts.New.render) Nothing
 
     S.post "/create" $ do
       now <- liftIO getCurrentTime
@@ -98,7 +98,7 @@ main = do
       aside <- isJust <$> lookup "aside" <$> S.params
       url <- liftM TL.unpack $ S.param "url"
       liftIO $ runDb $ insert $ Post title (T.pack content) draft aside url Nothing now
-      S.redirect "/notice='post created!'"
+      S.redirect "/?notice=post created!"
 
     S.post "/update" $ do
       postId <- liftM read $ S.param "id"
@@ -108,27 +108,27 @@ main = do
       aside <- isJust <$> lookup "aside" <$> S.params
       url <- liftM TL.unpack $ S.param "url"
       liftIO $ runDb $ update (getKey postId) [PostTitle =. title, PostContent =. (T.pack content), PostDraft =. draft, PostAside =. aside, PostUrl =. url]
-      S.redirect "/notice='post updated!'"
+      S.redirect "/?notice=post updated!"
 
     S.get "/edit/:post" $ do
       postId <- liftM read $ S.param "post"
       post <- liftIO $ getPost (getKey postId)
       case post of
-        (Just _post) -> application (Obvious.Views.Posts.Edit.render _post postId) Nothing
+        (Just _post) -> admin (Obvious.Views.Posts.Edit.render _post postId) Nothing
         Nothing -> S.status HTTP.status404
 
     S.get "/delete/:post" $ do
       postId <- liftM read $ S.param "post"
       post <- liftIO $ getPost (getKey postId)
       case post of
-        (Just _post) -> application (Obvious.Views.Posts.Delete.render _post postId) Nothing
+        (Just _post) -> admin (Obvious.Views.Posts.Delete.render _post postId) Nothing
         Nothing -> S.status HTTP.status404      
       
 
     S.post "/destroy" $ do
       postId <- liftM read $ S.param "id"
       liftIO $ runDb $ delete (getKey postId)
-      S.redirect "/notice='post deleted!'"      
+      S.redirect "/?notice=post deleted!"
 
     S.get "/admin" $ do
       posts_ <- liftIO readPosts
